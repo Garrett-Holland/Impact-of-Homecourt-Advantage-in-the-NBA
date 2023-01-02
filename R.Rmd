@@ -1,0 +1,29 @@
+---
+title: "Impact of Homecourt Advantage on the NBA"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(sf)
+library(leaflet)
+library(dplyr)
+library(htmltools)
+library(scales)
+library(units)
+```
+
+```{r}
+data <- read.csv(file = "../data/games.csv")
+```
+
+```{r}
+ data <- data %>% 
+  rename('Winner' = 'HOME_TEAM_WINS')
+```
+
+```{r}
+data$Winner[data$Winner=='0']<- 'Away'
+data$Winner[data$Winner=='1']<- 'Home'
+```
+
