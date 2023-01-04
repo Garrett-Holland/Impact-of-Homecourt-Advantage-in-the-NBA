@@ -1829,8 +1829,8 @@ The following object is masked from ‘package:readr’:
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIGRhdGEgPC0gZGF0YSAlPiUgXG4gIHJlbmFtZSgnV2lubmVyJyA9ICdIT01FX1RFQU1fV0lOUycpXG5gYGAifQ== -->
-<pre class="r"><code> data &lt;- data %&gt;% 
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGF0YSA8LSBkYXRhICU+JSBcbiAgcmVuYW1lKCdXaW5uZXInID0gJ0hPTUVfVEVBTV9XSU5TJylcbmBgYCJ9 -->
+<pre class="r"><code>data &lt;- data %&gt;% 
   rename(&#39;Winner&#39; = &#39;HOME_TEAM_WINS&#39;)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
@@ -1844,8 +1844,86 @@ data$Winner[data$Winner==&#39;1&#39;]&lt;- &#39;Home&#39;</code></pre>
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubWVhbihkYXRhJFBUU19ob21lLCBuYS5ybSA9IFRSVUUpXG5gYGAifQ== -->
+<pre class="r"><code>mean(data$PTS_home, na.rm = TRUE)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDEwMy40NTU5XG4ifQ== -->
+<pre><code>[1] 103.4559</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubWVhbihkYXRhJFBUU19hd2F5LCBuYS5ybSA9IFRSVUUpXG5gYGAifQ== -->
+<pre class="r"><code>mean(data$PTS_away, na.rm = TRUE)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDEwMC42Mzk5XG4ifQ== -->
+<pre><code>[1] 100.6399</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubWVhbihkYXRhJEZHM19QQ1RfaG9tZSwgbmEucm0gPSBUUlVFKVxuYGBgIn0= -->
+<pre class="r"><code>mean(data$FG3_PCT_home, na.rm = TRUE)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDAuMzU2MDIzMlxuIn0= -->
+<pre><code>[1] 0.3560232</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubWVhbihkYXRhJEZHM19QQ1RfYXdheSwgbmEucm0gPSBUUlVFKVxuYGBgIn0= -->
+<pre class="r"><code>mean(data$FG3_PCT_away, na.rm = TRUE)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDAuMzQ5NDg4OVxuIn0= -->
+<pre><code>[1] 0.3494889</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubWVhbihkYXRhJEZUX1BDVF9ob21lLCBuYS5ybSA9IFRSVUUpXG5gYGAifQ== -->
+<pre class="r"><code>mean(data$FT_PCT_home, na.rm = TRUE)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDAuNzYwMzc3MVxuIn0= -->
+<pre><code>[1] 0.7603771</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubWVhbihkYXRhJEZUX1BDVF9hd2F5LCBuYS5ybSA9IFRSVUUpXG5gYGAifQ== -->
+<pre class="r"><code>mean(data$FT_PCT_away, na.rm = TRUE)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDAuNzU4ODE1OFxuIn0= -->
+<pre><code>[1] 0.7588158</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubWVhbihkYXRhJEFTVF9ob21lLCBuYS5ybSA9IFRSVUUpXG5gYGAifQ== -->
+<pre class="r"><code>mean(data$AST_home, na.rm = TRUE)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDIyLjgyMzQ0XG4ifQ== -->
+<pre><code>[1] 22.82344</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubWVhbihkYXRhJEFTVF9hd2F5LCBuYS5ybSA9IFRSVUUpXG5gYGAifQ== -->
+<pre class="r"><code>mean(data$AST_away, na.rm = TRUE)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDIxLjQ5NjI3XG4ifQ== -->
+<pre><code>[1] 21.49627</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubWVhbihkYXRhJFJFQl9ob21lLCBuYS5ybSA9IFRSVUUpXG5gYGAifQ== -->
+<pre class="r"><code>mean(data$REB_home, na.rm = TRUE)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDQzLjM3NDI4XG4ifQ== -->
+<pre><code>[1] 43.37428</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubWVhbihkYXRhJFJFQl9hd2F5LCBuYS5ybSA9IFRSVUUpXG5gYGAifQ== -->
+<pre class="r"><code>mean(data$REB_away, na.rm = TRUE)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDQyLjExMzI1XG4ifQ== -->
+<pre><code>[1] 42.11325</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIkltcGFjdCBvZiBIb21lY291cnQgQWR2YW50YWdlIG9uIHRoZSBOQkEiDQpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sNCi0tLQ0KDQpgYGB7cn0NCmxpYnJhcnkodGlkeXZlcnNlKQ0KbGlicmFyeShzZikNCmxpYnJhcnkobGVhZmxldCkNCmxpYnJhcnkoZHBseXIpDQpsaWJyYXJ5KGh0bWx0b29scykNCmxpYnJhcnkoc2NhbGVzKQ0KbGlicmFyeSh1bml0cykNCmBgYA0KDQpgYGB7cn0NCmRhdGEgPC0gcmVhZC5jc3YoZmlsZSA9ICIuLi9kYXRhL2dhbWVzLmNzdiIpDQpgYGANCg0KYGBge3J9DQogZGF0YSA8LSBkYXRhICU+JSANCiAgcmVuYW1lKCdXaW5uZXInID0gJ0hPTUVfVEVBTV9XSU5TJykNCmBgYA0KDQpgYGB7cn0NCmRhdGEkV2lubmVyW2RhdGEkV2lubmVyPT0nMCddPC0gJ0F3YXknDQpkYXRhJFdpbm5lcltkYXRhJFdpbm5lcj09JzEnXTwtICdIb21lJw0KYGBgDQoNCg==</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIkltcGFjdCBvZiBIb21lY291cnQgQWR2YW50YWdlIG9uIHRoZSBOQkEiDQpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sNCi0tLQ0KDQpgYGB7cn0NCmxpYnJhcnkodGlkeXZlcnNlKQ0KbGlicmFyeShzZikNCmxpYnJhcnkobGVhZmxldCkNCmxpYnJhcnkoZHBseXIpDQpsaWJyYXJ5KGh0bWx0b29scykNCmxpYnJhcnkoc2NhbGVzKQ0KbGlicmFyeSh1bml0cykNCmBgYA0KDQpgYGB7cn0NCmRhdGEgPC0gcmVhZC5jc3YoZmlsZSA9ICIuLi9kYXRhL2dhbWVzLmNzdiIpDQpgYGANCg0KYGBge3J9DQpkYXRhIDwtIGRhdGEgJT4lIA0KICByZW5hbWUoJ1dpbm5lcicgPSAnSE9NRV9URUFNX1dJTlMnKQ0KYGBgDQoNCmBgYHtyfQ0KZGF0YSRXaW5uZXJbZGF0YSRXaW5uZXI9PScwJ108LSAnQXdheScNCmRhdGEkV2lubmVyW2RhdGEkV2lubmVyPT0nMSddPC0gJ0hvbWUnDQpgYGANCg0KYGBge3J9DQptZWFuKGRhdGEkUFRTX2hvbWUsIG5hLnJtID0gVFJVRSkNCm1lYW4oZGF0YSRQVFNfYXdheSwgbmEucm0gPSBUUlVFKQ0KYGBgDQpgYGB7cn0NCm1lYW4oZGF0YSRGRzNfUENUX2hvbWUsIG5hLnJtID0gVFJVRSkNCm1lYW4oZGF0YSRGRzNfUENUX2F3YXksIG5hLnJtID0gVFJVRSkNCmBgYA0KDQpgYGB7cn0NCm1lYW4oZGF0YSRGVF9QQ1RfaG9tZSwgbmEucm0gPSBUUlVFKQ0KbWVhbihkYXRhJEZUX1BDVF9hd2F5LCBuYS5ybSA9IFRSVUUpDQpgYGANCg0KYGBge3J9DQptZWFuKGRhdGEkQVNUX2hvbWUsIG5hLnJtID0gVFJVRSkNCm1lYW4oZGF0YSRBU1RfYXdheSwgbmEucm0gPSBUUlVFKQ0KYGBgDQoNCmBgYHtyfQ0KbWVhbihkYXRhJFJFQl9ob21lLCBuYS5ybSA9IFRSVUUpDQptZWFuKGRhdGEkUkVCNjY2NjY2NjY2NjZfYXdheSwgbmEucm0gPSBUUlVFKQ0KYGBgDQoNCg==</div>
 
 
 

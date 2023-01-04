@@ -18,12 +18,36 @@ data <- read.csv(file = "../data/games.csv")
 ```
 
 ```{r}
- data <- data %>% 
+data <- data %>% 
   rename('Winner' = 'HOME_TEAM_WINS')
 ```
 
 ```{r}
 data$Winner[data$Winner=='0']<- 'Away'
 data$Winner[data$Winner=='1']<- 'Home'
+```
+
+```{r}
+mean(data$PTS_home, na.rm = TRUE)
+mean(data$PTS_away, na.rm = TRUE)
+```
+```{r}
+mean(data$FG3_PCT_home, na.rm = TRUE)
+mean(data$FG3_PCT_away, na.rm = TRUE)
+```
+
+```{r}
+mean(data$FT_PCT_home, na.rm = TRUE)
+mean(data$FT_PCT_away, na.rm = TRUE)
+```
+
+```{r}
+mean(data$AST_home, na.rm = TRUE)
+mean(data$AST_away, na.rm = TRUE)
+```
+
+```{r}
+mean(data$REB_home, na.rm = TRUE)
+mean(data$REB66666666666_away, na.rm = TRUE)
 ```
 
