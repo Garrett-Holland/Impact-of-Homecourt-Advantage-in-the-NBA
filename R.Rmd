@@ -48,6 +48,12 @@ mean(data$AST_away, na.rm = TRUE)
 
 ```{r}
 mean(data$REB_home, na.rm = TRUE)
-mean(data$REB66666666666_away, na.rm = TRUE)
+mean(data$REB_away, na.rm = TRUE)
+```
+```{r}
+data %>%
+  group_by(Winner) %>%
+  summarise(frequency = n()) %>%
+  mutate(relative_frequency = frequency / sum(frequency)) 
 ```
 
