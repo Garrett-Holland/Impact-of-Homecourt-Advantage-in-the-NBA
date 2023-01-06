@@ -23,6 +23,73 @@ data <- data %>%
 ```
 
 ```{r}
+data$TEAM_ID_home[data$TEAM_ID_home=='1610612740']<- 'New Orleans Pelicans'
+data$TEAM_ID_home[data$TEAM_ID_home=='1610612762']<- 'Utah Jazz'
+data$TEAM_ID_home[data$TEAM_ID_home=='1610612739']<- 'Cleveland Cavaliers'
+data$TEAM_ID_home[data$TEAM_ID_home=='1610612755']<- 'Philadelphia 76ers'
+data$TEAM_ID_home[data$TEAM_ID_home=='1610612737']<- 'Atlanta Hawks'
+data$TEAM_ID_home[data$TEAM_ID_home=='1610612738']<- 'Boston Celtics'
+data$TEAM_ID_home[data$TEAM_ID_home=='1610612751']<- 'Brooklyn Nets'
+data$TEAM_ID_home[data$TEAM_ID_home=='1610612752']<- 'New York Knicks'
+data$TEAM_ID_home[data$TEAM_ID_home=='1610612745']<- 'Houston Rockets'
+data$TEAM_ID_home[data$TEAM_ID_home=='1610612750']<- 'Minnesota Timberwolves'
+data$TEAM_ID_home[data$TEAM_ID_home=='1610612760']<- 'Oklahoma City Thunder'
+data$TEAM_ID_home[data$TEAM_ID_home=='1610612758']<- 'Sacramento Kings'
+data$TEAM_ID_home[data$TEAM_ID_home=='1610612746']<- 'Los Angeles Clippers'
+data$TEAM_ID_home[data$TEAM_ID_home=='1610612765']<- 'Detroit Pistons'
+data$TEAM_ID_home[data$TEAM_ID_home=='1610612748']<- 'Miami Heat'
+data$TEAM_ID_home[data$TEAM_ID_home=='1610612756']<- 'Phoenix Suns'
+data$TEAM_ID_home[data$TEAM_ID_home=='1610612743']<- 'Denver Nuggets'
+data$TEAM_ID_home[data$TEAM_ID_home=='1610612754']<- 'Indiana Pacers'
+data$TEAM_ID_home[data$TEAM_ID_home=='1610612761']<- 'Toronto Raptors'
+data$TEAM_ID_home[data$TEAM_ID_home=='1610612747']<- 'Los Angeles Lakers'
+data$TEAM_ID_home[data$TEAM_ID_home=='1610612759']<- 'San Antonio Spurs'
+data$TEAM_ID_home[data$TEAM_ID_home=='1610612749']<- 'Milwaukee Bucks'
+data$TEAM_ID_home[data$TEAM_ID_home=='1610612766']<- 'Charlotte Hornets'
+data$TEAM_ID_home[data$TEAM_ID_home=='1610612741']<- 'Chicago Bulls'
+data$TEAM_ID_home[data$TEAM_ID_home=='1610612742']<- 'Dallas Mavericks'
+data$TEAM_ID_home[data$TEAM_ID_home=='1610612763']<- 'Memphis Grizzlies'
+data$TEAM_ID_home[data$TEAM_ID_home=='1610612753']<- 'Orlando Magic'
+data$TEAM_ID_home[data$TEAM_ID_home=='1610612744']<- 'Golden State Warriors'
+data$TEAM_ID_home[data$TEAM_ID_home=='1610612764']<- 'Washington Wizards'
+data$TEAM_ID_home[data$TEAM_ID_home=='1610612757']<- 'Portland Trailblazers'
+```
+
+```{r}
+data$TEAM_ID_away[data$TEAM_ID_away=='1610612740']<- 'New Orleans Pelicans'
+data$TEAM_ID_away[data$TEAM_ID_away=='1610612762']<- 'Utah Jazz'
+data$TEAM_ID_away[data$TEAM_ID_away=='1610612739']<- 'Cleveland Cavaliers'
+data$TEAM_ID_away[data$TEAM_ID_away=='1610612755']<- 'Philadelphia 76ers'
+data$TEAM_ID_away[data$TEAM_ID_away=='1610612737']<- 'Atlanta Hawks'
+data$TEAM_ID_away[data$TEAM_ID_away=='1610612738']<- 'Boston Celtics'
+data$TEAM_ID_away[data$TEAM_ID_away=='1610612751']<- 'Brooklyn Nets'
+data$TEAM_ID_away[data$TEAM_ID_away=='1610612752']<- 'New York Knicks'
+data$TEAM_ID_away[data$TEAM_ID_away=='1610612745']<- 'Houston Rockets'
+data$TEAM_ID_away[data$TEAM_ID_away=='1610612750']<- 'Minnesota Timberwolves'
+data$TEAM_ID_away[data$TEAM_ID_away=='1610612760']<- 'Oklahoma City Thunder'
+data$TEAM_ID_away[data$TEAM_ID_away=='1610612758']<- 'Sacramento Kings'
+data$TEAM_ID_away[data$TEAM_ID_away=='1610612746']<- 'Los Angeles Clippers'
+data$TEAM_ID_away[data$TEAM_ID_away=='1610612765']<- 'Detroit Pistons'
+data$TEAM_ID_away[data$TEAM_ID_away=='1610612748']<- 'Miami Heat'
+data$TEAM_ID_away[data$TEAM_ID_away=='1610612756']<- 'Phoenix Suns'
+data$TEAM_ID_away[data$TEAM_ID_away=='1610612743']<- 'Denver Nuggets'
+data$TEAM_ID_away[data$TEAM_ID_away=='1610612754']<- 'Indiana Pacers'
+data$TEAM_ID_away[data$TEAM_ID_away=='1610612761']<- 'Toronto Raptors'
+data$TEAM_ID_away[data$TEAM_ID_away=='1610612747']<- 'Los Angeles Lakers'
+data$TEAM_ID_away[data$TEAM_ID_away=='1610612759']<- 'San Antonio Spurs'
+data$TEAM_ID_away[data$TEAM_ID_away=='1610612749']<- 'Milwaukee Bucks'
+data$TEAM_ID_away[data$TEAM_ID_away=='1610612766']<- 'Charlotte Hornets'
+data$TEAM_ID_away[data$TEAM_ID_away=='1610612741']<- 'Chicago Bulls'
+data$TEAM_ID_away[data$TEAM_ID_away=='1610612742']<- 'Dallas Mavericks'
+data$TEAM_ID_away[data$TEAM_ID_away=='1610612763']<- 'Memphis Grizzlies'
+data$TEAM_ID_away[data$TEAM_ID_away=='1610612753']<- 'Orlando Magic'
+data$TEAM_ID_away[data$TEAM_ID_away=='1610612744']<- 'Golden State Warriors'
+data$TEAM_ID_away[data$TEAM_ID_away=='1610612764']<- 'Washington Wizards'
+data$TEAM_ID_away[data$TEAM_ID_away=='1610612757']<- 'Portland Trailblazers'
+```
+
+
+```{r}
 data$Winner[data$Winner=='0']<- 'Away'
 data$Winner[data$Winner=='1']<- 'Home'
 ```
@@ -31,6 +98,12 @@ data$Winner[data$Winner=='1']<- 'Home'
 mean(data$PTS_home, na.rm = TRUE)
 mean(data$PTS_away, na.rm = TRUE)
 ```
+```{r}
+mean(data$FG_PCT_home, na.rm = TRUE)
+mean(data$FG_PCT_away, na.rm = TRUE)
+```
+
+
 ```{r}
 mean(data$FG3_PCT_home, na.rm = TRUE)
 mean(data$FG3_PCT_away, na.rm = TRUE)
