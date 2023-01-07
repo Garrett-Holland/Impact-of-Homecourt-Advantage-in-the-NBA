@@ -130,3 +130,90 @@ data %>%
   mutate(relative_frequency = frequency / sum(frequency)) 
 ```
 
+```{r}
+data_winners <- filter(data, Winner == 'Home')
+```
+
+```{r}
+data_losers <- filter(data, Winner == 'Away')
+```
+
+```{r}
+home_win <- data_winners %>% 
+  count(TEAM_ID_home, Winner) %>% 
+  rename(frequency = n)
+```
+
+```{r}
+home_loss <- data_losers %>% 
+  count(TEAM_ID_home, Winner) %>% 
+  rename(frequency = n)
+```
+
+```{r}
+home_win_loss <- merge(home_win, home_loss, by = 'TEAM_ID_home')
+```
+
+```{r}
+home_win_loss <- home_win_loss %>% 
+  rename(Win = frequency.x, Loss = frequency.y, Home = Winner.x, Away = Winner.y, Team = TEAM_ID_home)
+```
+
+```{r}
+home_win_loss <- home_win_loss %>%
+  group_by(Team) %>% 
+  mutate(Total = sum(Win, Loss))
+```
+
+```{r}
+home_win_loss <- home_win_loss %>%
+  group_by(Team) %>% 
+  mutate(Win_Percentage = Win / Total)
+```
+
+```{r}
+away_win <- data_losers %>% 
+  count(TEAM_ID_away, Winner) %>% 
+  rename(frequency = n)
+```
+
+```{r}
+away_loss <- data_winners %>% 
+  count(TEAM_ID_away, Winner) %>% 
+  rename(frequency = n)
+```
+
+```{r}
+away_win_loss <- merge(away_win, away_loss, by = 'TEAM_ID_away')
+```
+
+```{r}
+away_win_loss <- away_win_loss %>% 
+  rename(Win = frequency.x, Loss = frequency.y, Away = Winner.x, Home = Winner.y, Team = TEAM_ID_away)
+```
+
+```{r}
+away_win_loss <- away_win_loss %>%
+  group_by(Team) %>% 
+  mutate(Total = sum(Win, Loss))
+```
+
+```{r}
+away_win_loss <- away_win_loss %>%
+  group_by(Team) %>% 
+  mutate(Win_Percentage = Win / Total)
+```
+
+```{r}
+Teams <- merge(home_win_loss, away_win_loss, by = 'Team')
+```
+
+```{r}
+Teams <- Teams %>% 
+  rename(Home_Win = Win.x, Home_Loss = Loss.x, Home_Total = Total.x, Home_Win_Percentage = Win_Percentage.x, Away_Win = Win.y, Away_Loss = Loss.y, Away_Total = Total.y, Away_Win_Percentage = Win_Percentage.y)
+```
+
+```{r}
+Teams <- subset(Teams, select = c(Team, Home_Win, Home_Loss, Home_Total, Home_Win_Percentage, Away_Win, Away_Loss, Away_Total, Away_Win_Percentage))
+```
+
