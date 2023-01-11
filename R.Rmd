@@ -217,3 +217,59 @@ Teams <- Teams %>%
 Teams <- subset(Teams, select = c(Team, Home_Win, Home_Loss, Home_Total, Home_Win_Percentage, Away_Win, Away_Loss, Away_Total, Away_Win_Percentage))
 ```
 
+```{r}
+Teams <- Teams %>%
+  group_by(Team) %>% 
+  mutate(Win_Pct_Differential = Home_Win_Percentage - Away_Win_Percentage)
+```
+
+```{r}
+ggplot(Teams, aes(x = Win_Pct_Differential, y = reorder(Team, Win_Pct_Differential), color = Team)) +
+  geom_point() +
+  geom_smooth(method=lm) +
+  theme(legend.position = 'none') +
+  labs(title = "Home Court Impact", x = "Win % Differential Home vs Away", y = "Teams")
+```
+
+```{r}
+ggplot(Teams, aes(x=Win_Pct_Differential, y=reorder(Team, Win_Pct_Differential), fill=Team)) +
+  geom_bar(stat="identity") +
+  theme(legend.position = 'none') +
+  labs(title = "Home Court Impact", x = "Win % Differential Home vs Away", y = "Teams")
+```
+
+```{r}
+data <- data %>% 
+  group_by(TEAM_ID_home) %>% 
+  mutate(Pts_Scored_Home = mean(PTS_home, na.rm = TRUE))
+```
+
+```{r}
+data <- data %>% 
+  group_by(TEAM_ID_home) %>% 
+  mutate(Pts_Against_Home = mean(PTS_away, na.rm = TRUE))
+```
+
+```{r}
+data <- data %>% 
+  group_by(TEAM_ID_away) %>% 
+  mutate(Pts_Scored_Away = mean(PTS_away, na.rm = TRUE))
+```
+
+```{r}
+data <- data %>% 
+  group_by(TEAM_ID_away) %>% 
+  mutate(Pts_Against_Away = mean(PTS_home, na.rm = TRUE))
+```
+
+```{r}
+data <- data %>% 
+  group_by(TEAM_ID_home) %>% 
+  mutate(Pts_Home_Differential = Pts_Scored_Home - Pts_Against_Home)
+```
+
+```{r}
+data <- data %>% 
+  group_by(TEAM_ID_away) %>% 
+  mutate(Pts_Away_Differential = Pts_Scored_Away - Pts_Against_Away)
+```
