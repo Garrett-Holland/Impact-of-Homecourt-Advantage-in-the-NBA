@@ -11,10 +11,16 @@ library(dplyr)
 library(htmltools)
 library(scales)
 library(units)
+library(geosphere)
 ```
 
 ```{r}
 data <- read.csv(file = "../data/games.csv")
+```
+
+```{r}
+data %>% 
+  filter(GAME_DATE_EST > '2020-10-12' & GAME_DATE_EST < '2020-03-12')
 ```
 
 ```{r}
@@ -88,7 +94,6 @@ data$TEAM_ID_away[data$TEAM_ID_away=='1610612764']<- 'Washington Wizards'
 data$TEAM_ID_away[data$TEAM_ID_away=='1610612757']<- 'Portland Trailblazers'
 ```
 
-
 ```{r}
 data$Winner[data$Winner=='0']<- 'Away'
 data$Winner[data$Winner=='1']<- 'Home'
@@ -123,6 +128,7 @@ mean(data$AST_away, na.rm = TRUE)
 mean(data$REB_home, na.rm = TRUE)
 mean(data$REB_away, na.rm = TRUE)
 ```
+
 ```{r}
 data %>%
   group_by(Winner) %>%
@@ -273,3 +279,72 @@ data <- data %>%
   group_by(TEAM_ID_away) %>% 
   mutate(Pts_Away_Differential = Pts_Scored_Away - Pts_Against_Away)
 ```
+
+```{r}
+home_win_loss$home_latitude <- c(33.757253, 42.366079, 40.682693, 35.225142, 41.881280, 41.496209, 32.790189, 39.748577, 42.340972, 37.770358, 29.684815, 39.763899, 34.042849, 34.042849, 35.138022, 25.781392, 43.045119, 44.979153, 29.949325, 40.750915, 35.463085, 28.539155, 39.901070, 33.445261, 45.531834, 38.580434, 29.427512, 43.643709, 40.768386, 38.898197)
+```
+
+```{r}
+home_win_loss$home_longitude <- c(-84.396314, -71.061652, -73.975588, -80.839434, -87.674384, -81.688835, -96.810847, -105.006669, -83.056003, -122.386905, -95.411201, -86.155649, -118.266557, -118.266557, -90.050512, -80.187237, -87.916244, -93.275585, -90.082739, -73.992859, -97.515289, -81.383124, -75.171242, -112.071736, -122.667758, -121.498840, -98.438185, -79.378337, -111.900234, -77.020062)
+```
+
+```{r}
+away_win_loss$away_latitude <- c(33.757253, 42.366079, 40.682693, 35.225142, 41.881280, 41.496209, 32.790189, 39.748577, 42.340972, 37.770358, 29.684815, 39.763899, 34.042849, 34.042849, 35.138022, 25.781392, 43.045119, 44.979153, 29.949325, 40.750915, 35.463085, 28.539155, 39.901070, 33.445261, 45.531834, 38.580434, 29.427512, 43.643709, 40.768386, 38.898197)
+```
+
+```{r}
+away_win_loss$away_longitude <- c(-84.396314, -71.061652, -73.975588, -80.839434, -87.674384, -81.688835, -96.810847, -105.006669, -83.056003, -122.386905, -95.411201, -86.155649, -118.266557, -118.266557, -90.050512, -80.187237, -87.916244, -93.275585, -90.082739, -73.992859, -97.515289, -81.383124, -75.171242, -112.071736, -122.667758, -121.498840, -98.438185, -79.378337, -111.900234, -77.020062)
+```
+
+```{r}
+home <- subset(home_win_loss, select = c(Team, home_longitude, home_latitude))
+```
+
+```{r}
+away <- subset(away_win_loss, select = c(Team, away_longitude, away_latitude))
+```
+
+```{r}
+home <- home %>% 
+  rename(TEAM_ID_home = Team)
+```
+
+```{r}
+away <- away %>% 
+  rename(TEAM_ID_away = Team)
+```
+
+```{r}
+data <- merge(data, away, by = 'TEAM_ID_away')
+```
+
+```{r}
+data <- merge(data, home, by = 'TEAM_ID_home')
+```
+
+```{r}
+data <- data %>% rowwise() %>% 
+  mutate(Distance_Meters = geosphere::distHaversine( c(home_longitude, home_latitude), c(away_longitude, away_latitude)))
+```
+
+```{r}
+data <- data %>% 
+  group_by(TEAM_ID_away) %>% 
+  mutate(Avg_Distance_Traveled_Miles = mean(Distance_Meters / 1609.344))
+```
+
+```{r}
+Teams$Average_Distance_Traveled
+```
+
+
+```{r}
+# <- left_join(Teams, data, by = 'TEAM_ID_away')
+```
+
+```{r}
+#simple_regression_model <- lm(amount ~ square_footage + age + relevel(group, ref = 'outside') + year_of_sale + tpost + tract, data = data)
+#summary(simple_regression_model)
+```
+
+
