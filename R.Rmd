@@ -12,20 +12,26 @@ library(htmltools)
 library(scales)
 library(units)
 library(geosphere)
+library(geonames)
+library(googleway)
+library(ggmap)
+library(rvest)
 ```
 
 ```{r}
 data <- read.csv(file = "../data/games.csv")
+data <- na.omit(data)
 ```
 
 ```{r}
-data %>% 
-  filter(GAME_DATE_EST > '2020-10-12' & GAME_DATE_EST < '2020-03-12')
+data$GAME_DATE_EST <- as.Date(data$GAME_DATE_EST)
+data <- data %>% 
+  filter( !(between(GAME_DATE_EST, as.Date("2020-03-12"), as.Date("2020-10-12"))))
 ```
 
 ```{r}
 data <- data %>% 
-  rename('Winner' = 'HOME_TEAM_WINS')
+  rename('Winner' = 'HOME_TEAM_WINS', 'Team' = 'HOME_TEAM_ID')
 ```
 
 ```{r}
@@ -95,38 +101,41 @@ data$TEAM_ID_away[data$TEAM_ID_away=='1610612757']<- 'Portland Trailblazers'
 ```
 
 ```{r}
+data$Team[data$Team=='1610612740']<- 'New Orleans Pelicans'
+data$Team[data$Team=='1610612762']<- 'Utah Jazz'
+data$Team[data$Team=='1610612739']<- 'Cleveland Cavaliers'
+data$Team[data$Team=='1610612755']<- 'Philadelphia 76ers'
+data$Team[data$Team=='1610612737']<- 'Atlanta Hawks'
+data$Team[data$Team=='1610612738']<- 'Boston Celtics'
+data$Team[data$Team=='1610612751']<- 'Brooklyn Nets'
+data$Team[data$Team=='1610612752']<- 'New York Knicks'
+data$Team[data$Team=='1610612745']<- 'Houston Rockets'
+data$Team[data$Team=='1610612750']<- 'Minnesota Timberwolves'
+data$Team[data$Team=='1610612760']<- 'Oklahoma City Thunder'
+data$Team[data$Team=='1610612758']<- 'Sacramento Kings'
+data$Team[data$Team=='1610612746']<- 'Los Angeles Clippers'
+data$Team[data$Team=='1610612765']<- 'Detroit Pistons'
+data$Team[data$Team=='1610612748']<- 'Miami Heat'
+data$Team[data$Team=='1610612756']<- 'Phoenix Suns'
+data$Team[data$Team=='1610612743']<- 'Denver Nuggets'
+data$Team[data$Team=='1610612754']<- 'Indiana Pacers'
+data$Team[data$Team=='1610612761']<- 'Toronto Raptors'
+data$Team[data$Team=='1610612747']<- 'Los Angeles Lakers'
+data$Team[data$Team=='1610612759']<- 'San Antonio Spurs'
+data$Team[data$Team=='1610612749']<- 'Milwaukee Bucks'
+data$Team[data$Team=='1610612766']<- 'Charlotte Hornets'
+data$Team[data$Team=='1610612741']<- 'Chicago Bulls'
+data$Team[data$Team=='1610612742']<- 'Dallas Mavericks'
+data$Team[data$Team=='1610612763']<- 'Memphis Grizzlies'
+data$Team[data$Team=='1610612753']<- 'Orlando Magic'
+data$Team[data$Team=='1610612744']<- 'Golden State Warriors'
+data$Team[data$Team=='1610612764']<- 'Washington Wizards'
+data$Team[data$Team=='1610612757']<- 'Portland Trailblazers'
+```
+
+```{r}
 data$Winner[data$Winner=='0']<- 'Away'
 data$Winner[data$Winner=='1']<- 'Home'
-```
-
-```{r}
-mean(data$PTS_home, na.rm = TRUE)
-mean(data$PTS_away, na.rm = TRUE)
-```
-```{r}
-mean(data$FG_PCT_home, na.rm = TRUE)
-mean(data$FG_PCT_away, na.rm = TRUE)
-```
-
-
-```{r}
-mean(data$FG3_PCT_home, na.rm = TRUE)
-mean(data$FG3_PCT_away, na.rm = TRUE)
-```
-
-```{r}
-mean(data$FT_PCT_home, na.rm = TRUE)
-mean(data$FT_PCT_away, na.rm = TRUE)
-```
-
-```{r}
-mean(data$AST_home, na.rm = TRUE)
-mean(data$AST_away, na.rm = TRUE)
-```
-
-```{r}
-mean(data$REB_home, na.rm = TRUE)
-mean(data$REB_away, na.rm = TRUE)
 ```
 
 ```{r}
@@ -134,6 +143,34 @@ data %>%
   group_by(Winner) %>%
   summarise(frequency = n()) %>%
   mutate(relative_frequency = frequency / sum(frequency)) 
+```
+
+```{r}
+# Scrape the page for attendance data
+#url <- "http://www.espn.com/nba/attendance"
+#html_data <- read_html(url)
+#attendance_data <- html_data %>% 
+#  html_nodes(xpath='//*[@id="my-teams-table"]/div[2]/div/table') %>%
+# Filter data to only include attendance data since 2004 and exclude 2006 and 2020
+#attendance_total <- attendance_data %>% 
+#  filter(Year >= 2004, Year != 2006, Year != 2020)
+
+# Group data by team and year, and compute average attendance
+#average_attendance <- attendance_total %>% 
+ # group_by(Team, Year) %>% 
+  #summarize(mean_attendance = mean(Attendance))
+```
+
+```{r}
+#attendance_list <- list()
+#for (year in 2004:2023) {
+  #url <- paste0("http://www.espn.com/nba/attendance/_/year", year)
+  #attendance_list[[year]] <- read_html(url) %>%
+    #html_table()[[1]]
+#}
+#attendance_df <- bind_rows(attendance_list)
+#attendance_df <- attendance_df %>% 
+  #rename('Team' = 'X2')
 ```
 
 ```{r}
@@ -211,26 +248,26 @@ away_win_loss <- away_win_loss %>%
 ```
 
 ```{r}
-Teams <- merge(home_win_loss, away_win_loss, by = 'Team')
+team_win_loss <- merge(home_win_loss, away_win_loss, by = 'Team')
 ```
 
 ```{r}
-Teams <- Teams %>% 
+team_win_loss <- team_win_loss %>% 
   rename(Home_Win = Win.x, Home_Loss = Loss.x, Home_Total = Total.x, Home_Win_Percentage = Win_Percentage.x, Away_Win = Win.y, Away_Loss = Loss.y, Away_Total = Total.y, Away_Win_Percentage = Win_Percentage.y)
 ```
 
 ```{r}
-Teams <- subset(Teams, select = c(Team, Home_Win, Home_Loss, Home_Total, Home_Win_Percentage, Away_Win, Away_Loss, Away_Total, Away_Win_Percentage))
+team_win_loss <- subset(team_win_loss, select = c(Team, Home_Win, Home_Loss, Home_Total, Home_Win_Percentage, Away_Win, Away_Loss, Away_Total, Away_Win_Percentage))
 ```
 
 ```{r}
-Teams <- Teams %>%
+team_win_loss <- team_win_loss %>%
   group_by(Team) %>% 
   mutate(Win_Pct_Differential = Home_Win_Percentage - Away_Win_Percentage)
 ```
 
 ```{r}
-ggplot(Teams, aes(x = Win_Pct_Differential, y = reorder(Team, Win_Pct_Differential), color = Team)) +
+ggplot(team_win_loss, aes(x = Win_Pct_Differential, y = reorder(Team, Win_Pct_Differential), color = Team)) +
   geom_point() +
   geom_smooth(method=lm) +
   theme(legend.position = 'none') +
@@ -238,7 +275,7 @@ ggplot(Teams, aes(x = Win_Pct_Differential, y = reorder(Team, Win_Pct_Differenti
 ```
 
 ```{r}
-ggplot(Teams, aes(x=Win_Pct_Differential, y=reorder(Team, Win_Pct_Differential), fill=Team)) +
+ggplot(team_win_loss, aes(x=Win_Pct_Differential, y=reorder(Team, Win_Pct_Differential), fill=Team)) +
   geom_bar(stat="identity") +
   theme(legend.position = 'none') +
   labs(title = "Home Court Impact", x = "Win % Differential Home vs Away", y = "Teams")
@@ -329,12 +366,68 @@ data <- data %>% rowwise() %>%
 
 ```{r}
 data <- data %>% 
-  group_by(TEAM_ID_away) %>% 
-  mutate(Avg_Distance_Traveled_Miles = mean(Distance_Meters / 1609.344))
+  group_by(TEAM_ID_home) %>% 
+  mutate(Avg_Distance_Traveled_Against = mean(Distance_Meters / 1609.344))
 ```
 
 ```{r}
-Teams$Average_Distance_Traveled
+api_key <- "AIzaSyCP-VJr3Xd-hzCNqZsGm7NY6Eb_m_9F1-Q"
+
+coords <- data.frame(lon = c(-84.396314, -71.061652, -73.975588, -80.839434, -87.674384, -81.688835, -96.810847, -105.006669, -83.056003, -122.386905, -95.411201, -86.155649, -118.266557, -118.266557, -90.050512, -80.187237, -87.916244, -93.275585, -90.082739, -73.992859, -97.515289, -81.383124, -75.171242, -112.071736, -122.667758, -121.498840, -98.438185, -79.378337, -111.900234, -77.020062), lat = c(33.757253, 42.366079, 40.682693, 35.225142, 41.881280, 41.496209, 32.790189, 39.748577, 42.340972, 37.770358, 29.684815, 39.763899, 34.042849, 34.042849, 35.138022, 25.781392, 43.045119, 44.979153, 29.949325, 40.750915, 35.463085, 28.539155, 39.901070, 33.445261, 45.531834, 38.580434, 29.427512, 43.643709, 40.768386, 38.898197))
+
+coords$elevation <- google_elevation(coords, key = api_key)
+coords <- (coords[[3]][[1]])
+```
+
+```{r}
+coords$Team <- c("Atlanta Hawks", "Boston Celtics", "Brooklyn Nets", "Charlotte Hornets", "Chicago Bulls", "Cleveland Cavaliers", "Dallas Mavericks", "Denver Nuggets", "Detroit Pistons", "Golden State Warriors", "Houston Rockets", "Indiana Pacers", "Los Angeles Clippers", "Los Angeles Lakers", "Memphis Grizzlies", "Miami Heat", "Milwaukee Bucks", "Minnesota Timberwolves", "New Orleans Pelicans", "New York Knicks", "Oklahoma City Thunder", "Orlando Magic", "Philadelphia 76ers", "Phoenix Suns", "Portland Trailblazers", "Sacramento Kings", "San Antonio Spurs", "Toronto Raptors", "Utah Jazz", "Washington Wizards")
+coords <- subset(coords, select = c(elevation, Team))
+```
+
+```{r}
+final_data <- merge(team_win_loss, coords, by = 'Team')
+```
+
+```{r}
+final_data <- final_data %>% 
+  group_by(Team) %>% 
+  mutate(Elevation = elevation * 3.28084)
+final_data <- subset(final_data, select = -elevation)
+```
+
+```{r}
+mean(data$FG_PCT_home, na.rm = TRUE)
+mean(data$FG_PCT_away, na.rm = TRUE)
+```
+
+```{r}
+mean(data$FG3_PCT_home, na.rm = TRUE)
+mean(data$FG3_PCT_away, na.rm = TRUE)
+```
+
+```{r}
+mean(data$FT_PCT_home, na.rm = TRUE)
+mean(data$FT_PCT_away, na.rm = TRUE)
+```
+
+```{r}
+mean(data$AST_home, na.rm = TRUE)
+mean(data$AST_away, na.rm = TRUE)
+```
+
+```{r}
+mean(data$REB_home, na.rm = TRUE)
+mean(data$REB_away, na.rm = TRUE)
+```
+
+```{r}
+#final_data <- subset(coords, select = c(1:3))
+#data.frame(coords$elevation, coords$location$lat, coords$location$lng)
+```
+
+
+```{r}
+#Teams$Average_Distance_Traveled
 ```
 
 
