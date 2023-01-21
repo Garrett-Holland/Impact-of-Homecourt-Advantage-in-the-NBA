@@ -478,16 +478,20 @@ mean(data$REB_away, na.rm = TRUE)
 ```{r}
 data_home_grouped <- data %>%
   group_by(Team) %>%
-  summarise(Pts_Scored_Home = mean(Pts_Scored_Home),
-            Pts_Against_Home = mean(Pts_Against_Home),
+  summarise(Pts_Scored_Home = mean(PTS_home),
+            Pts_Against_Home = mean(PTS_away),
             Home_Pts_Differential = mean(Pts_Home_Differential),
+            FG_Pct_Home = mean(FG_PCT_home),
+            FG3_Pct_Home = mean(FG3_PCT_home),
             Avg_Distance_Traveled_Against = mean(Avg_Distance_Traveled_Against)
            )
 data_away_grouped <- data %>%
   group_by(TEAM_ID_away) %>%
-  summarise(Pts_Scored_Away = mean(Pts_Scored_Away),
-            Pts_Against_Away = mean(Pts_Against_Away),
-            Away_Pts_Differential = mean(Pts_Away_Differential)
+  summarise(Pts_Scored_Away = mean(PTS_away),
+            Pts_Against_Away = mean(PTS_home),
+            Away_Pts_Differential = mean(Pts_Away_Differential),
+            FG_Pct_Away = mean(FG_PCT_away),
+            FG3_Pct_Away = mean(FG3_PCT_away)
            )
 data_away_grouped <- data_away_grouped %>%
   rename('Team' = 'TEAM_ID_away')
@@ -496,6 +500,19 @@ final_data <- merge(final_data, data_home_grouped, by = 'Team')
 final_data <- merge(final_data, data_away_grouped, by = 'Team')
 ```
 
+```{r}
+final_data <- final_data %>% 
+  group_by(Team) %>% 
+  mutate(Pts_Scored_Differential = Pts_Scored_Home - Pts_Scored_Away)
+
+final_data <- final_data %>% 
+  group_by(Team) %>% 
+  mutate(FG_Pct_Differential = FG_Pct_Home - FG_Pct_Away)
+
+final_data <- final_data %>% 
+  group_by(Team) %>% 
+  mutate(FG3_Pct_Differential = FG3_Pct_Home - FG3_Pct_Away)
+```
 
 ```{r}
 final_data <- final_data %>% 
@@ -549,8 +566,90 @@ ggplot(final_data, aes(x = Attendance_Pct, y = Win_Pct_Differential)) +
   theme(legend.position = "none")
 ```
 
+```{r}
+linear_regression_model <- lm(Win_Pct_Differential ~ Home_Vs_Away_Point_Differential + Elevation + Avg_Distance_Traveled_Against + Attendance_Pct + Pts_Scored_Differential + FG_Pct_Differential + FG3_Pct_Differential, data = final_data)
+summary(linear_regression_model)
+```
+
+
+
 
 ```{r}
-linear_regression_model <- lm(Win_Pct_Differential ~ Home_Vs_Away_Point_Differential + Elevation + Avg_Distance_Traveled_Against + Attendance_Pct, data = final_data)
+ggplot(final_data, aes(x = Attendance_Pct, y = Home_Win_Percentage)) + 
+  geom_point(aes(color = Team)) +
+  geom_smooth(method='lm') + 
+  scale_fill_manual(values = league_pal("nba")) +
+  ggtitle("Home Win % vs Attendance %") +
+  xlab("Attendance %") + ylab("Home Win %") +
+  theme(legend.position = "none")
+```
+
+```{r}
+ggplot(final_data, aes(x = Elevation, y = Home_Win_Percentage)) + 
+  geom_point(aes(color = Team)) +
+  geom_smooth(method='lm') + 
+  scale_fill_manual(values = league_pal("nba")) +
+  ggtitle("Home Win % vs Elevation") +
+  xlab("Elevation") + ylab("Home Win %") +
+  theme(legend.position = "none")
+```
+
+```{r}
+ggplot(final_data, aes(x = Avg_Distance_Traveled_Against, y = Home_Win_Percentage)) + 
+  geom_point(aes(color = Team)) +
+  geom_smooth(method='lm') + 
+  scale_fill_manual(values = league_pal("nba")) +
+  ggtitle("Home Win % vs Opponent's Average Distance Traveled") +
+  xlab("Opponent's Average Distance Traveled") + ylab("Home Win %") +
+  theme(legend.position = "none")
+```
+
+```{r}
+ggplot(final_data, aes(x = Win_Pct_Differential, y = Home_Win_Percentage)) + 
+  geom_point(aes(color = Team)) +
+  geom_smooth(method='lm') + 
+  scale_fill_manual(values = league_pal("nba")) +
+  ggtitle("Home Win % vs Win % Differential") +
+  xlab("Win % Differential") + ylab("Home Win %") +
+  theme(legend.position = "none")
+```
+
+```{r}
+ggplot(final_data, aes(x = Pts_Scored_Differential, y = Home_Win_Percentage)) + 
+  geom_point(aes(color = Team)) +
+  geom_smooth(method='lm') + 
+  scale_fill_manual(values = league_pal("nba")) +
+  ggtitle("Pts Scored Differential vs Home Win %") +
+  xlab("Pts Scored Differential Home vs Away") + ylab("Home Win %") +
+  theme(legend.position = "none")
+```
+
+
+```{r}
+ggplot(final_data, aes(x = FG_Pct_Differential, y = Home_Win_Percentage)) + 
+  geom_point(aes(color = Team)) +
+  geom_smooth(method='lm') + 
+  scale_fill_manual(values = league_pal("nba")) +
+  ggtitle("FG% Home/Away vs Home Win %") +
+  xlab("FG% Home vs Away") + ylab("Home Win %") +
+  theme(legend.position = "none")
+```
+
+
+```{r}
+ggplot(final_data, aes(x = FG3_Pct_Differential, y = Home_Win_Percentage)) + 
+  geom_point(aes(color = Team)) +
+  geom_smooth(method='lm') + 
+  scale_fill_manual(values = league_pal("nba")) +
+  ggtitle("3 Point % Home/Away vs Home Win %") +
+  xlab("3 Point % Home vs Away") + ylab("Home Win %") +
+  theme(legend.position = "none")
+```
+
+
+
+
+```{r}
+linear_regression_model <- lm(Home_Win_Percentage ~ Attendance_Pct + Home_Vs_Away_Point_Differential + Elevation + Avg_Distance_Traveled_Against + Pts_Scored_Differential + FG_Pct_Differential + FG3_Pct_Differential, data = final_data)
 summary(linear_regression_model)
 ```

@@ -4,17 +4,27 @@ library(plotly)
 labels <- c('Home_Vs_Away_Point_Differential' = 'Home/Away Point Differential',
             'Elevation' = 'Elevation',
             "Avg_Distance_Traveled_Against" = "Opponent's Avg Distance Traveled",
-            'Attendance_Pct' = 'Attendance %')
+            'Attendance_Pct' = 'Attendance %',
+             'FG_Pct_Differential' = 'Field Goal %',
+             "FG3_Pct_Differential" = "3 Point %",
+             'Pts_Scored_Differential' = 'Points Scored Home vs Away')
 ui <- fluidPage(
-  tabsetPanel(tabPanel("Homecourt Advantage by Team", plotOutput("ggplot")), 
-              tabPanel("Factors that Influence Homecourt Advantage",
-                       selectInput("factors", 'select a factor', c(
-                         'Home/Away Point Differential' = 'Home_Vs_Away_Point_Differential',
-                         'Elevation' = 'Elevation',
-                         "Opponent's Avg Distance Traveled" = "Avg_Distance_Traveled_Against",
-                         'Attendance %' = 'Attendance_Pct')
-                         ),
-                       plotlyOutput("lineplot1")))
+  tabsetPanel(
+    tabPanel("Homecourt Advantage by Team", plotOutput("ggplot")), 
+    tabPanel("Factors that Influence Homecourt Advantage",
+             selectInput("factors", 'select a factor', c(
+               'Home/Away Point Differential' = 'Home_Vs_Away_Point_Differential',
+               'Elevation' = 'Elevation',
+               "Opponent's Avg Distance Traveled" = "Avg_Distance_Traveled_Against",
+               'Attendance %' = 'Attendance_Pct')),
+             plotlyOutput("lineplot1")),
+    tabPanel("Variables that Home Win % Impact",
+             selectInput("variables", "select a factor", c(
+               "Attendance %" = "Attendance_Pct",
+               "Field Goal %" = "FG_Pct_Differential",
+               "3 Point %" = "FG3_Pct_Differential",
+               "Points Scored Home vs Away" = "Pts_Scored_Differential")),
+             plotlyOutput("lineplot2"))),
   )
 
 server <- function(input, output) {
@@ -37,7 +47,19 @@ server <- function(input, output) {
     p = ggplotly(p)
     p
   })
+  output$lineplot2 <- renderPlotly({
+    p <- ggplot(final_data, aes(x = .data[[input$variables]], y = Home_Win_Percentage)) + 
+      geom_point(aes(color = Team)) +
+      geom_smooth(method='lm') + 
+      scale_fill_manual(values = league_pal("nba")) +
+      ggtitle("Home Win % and the Impact of Homecourt") +
+      xlab(labels[input$variables]) + ylab("Home Win %") +
+      theme(legend.position = "none")
+    p = ggplotly(p)
+    p
+  }
+  )
 }
-
 shinyApp(ui = ui, server = server, options = list(height = 1080))
+
 
