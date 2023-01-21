@@ -4,8 +4,7 @@ library(plotly)
 labels <- c('Home_Vs_Away_Point_Differential' = 'Home/Away Point Differential',
             'Elevation' = 'Elevation',
             "Avg_Distance_Traveled_Against" = "Opponent's Avg Distance Traveled",
-            'Attendance_Percentage' = 'Attendance Percentage',
-            'Covid_Control_Variable' = 'Covid Control Variable')
+            'Attendance_Pct' = 'Attendance %')
 ui <- fluidPage(
   tabsetPanel(tabPanel("Homecourt Advantage by Team", plotOutput("ggplot")), 
               tabPanel("Factors that Influence Homecourt Advantage",
@@ -13,8 +12,7 @@ ui <- fluidPage(
                          'Home/Away Point Differential' = 'Home_Vs_Away_Point_Differential',
                          'Elevation' = 'Elevation',
                          "Opponent's Avg Distance Traveled" = "Avg_Distance_Traveled_Against",
-                         'Attendance Percentage' = 'Attendance_Percentage',
-                         'Covid Control Variable' = 'Covid_Control_Variable')
+                         'Attendance %' = 'Attendance_Pct')
                          ),
                        plotlyOutput("lineplot1")))
   )
