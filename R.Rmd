@@ -16,6 +16,7 @@ library(geonames)
 library(googleway)
 library(ggmap)
 library(rvest)
+library(teamcolors)
 ```
 
 ```{r}
@@ -24,14 +25,10 @@ data <- na.omit(data)
 ```
 
 ```{r}
-data$GAME_DATE_EST <- as.Date(data$GAME_DATE_EST)
-data <- data %>% 
-  filter( !(between(GAME_DATE_EST, as.Date("2020-03-12"), as.Date("2020-10-12"))))
-```
-
-```{r}
 data <- data %>% 
   rename('Winner' = 'HOME_TEAM_WINS', 'Team' = 'HOME_TEAM_ID')
+data$Winner[data$Winner=='0']<- 'Away'
+data$Winner[data$Winner=='1']<- 'Home'
 ```
 
 ```{r}
@@ -134,211 +131,98 @@ data$Team[data$Team=='1610612757']<- 'Portland Trailblazers'
 ```
 
 ```{r}
-data$Winner[data$Winner=='0']<- 'Away'
-data$Winner[data$Winner=='1']<- 'Home'
+attendance_list <- list()
+for (year in 2004:2023) {
+  url <- paste0("http://www.espn.com/nba/attendance/_/year/", year)
+  attendance_list[[year]] <- read_html(url) %>%
+    html_table()
+}
+attendance <- bind_rows(attendance_list)
+attendance <- attendance %>% 
+  rename('Team' = 'X2', 'Games' = 'X3', 'Total_Attendance' = 'X4', 'Average_Attendance' = 'X5', 'Attendance_Pct' = 'X6')
+
+attendance <- attendance %>%
+  slice(-c(76))
 ```
 
 ```{r}
-data %>%
-  group_by(Winner) %>%
-  summarise(frequency = n()) %>%
-  mutate(relative_frequency = frequency / sum(frequency)) 
+attendance <- attendance %>% 
+  select(Team, Attendance_Pct) %>% 
+  mutate(Attendance_Pct = as.numeric(Attendance_Pct)) %>% 
+  drop_na() %>% 
+  group_by(Team) %>%
+  summarize_all(mean) %>%
+    mutate(Team = case_when(
+    Team == "Hawks" ~ "Atlanta Hawks",
+    Team == "Celtics" ~ "Boston Celtics",
+    Team == "Nets" ~ "Brooklyn Nets",
+    Team == "Hornets" ~ "Charlotte Hornets",
+    Team == "Bulls" ~ "Chicago Bulls",
+    Team == "Cavaliers" ~ "Cleveland Cavaliers",
+    Team == "Mavericks" ~ "Dallas Mavericks",
+    Team == "Nuggets" ~ "Denver Nuggets",
+    Team == "Pistons" ~ "Detroit Pistons",
+    Team == "Warriors" ~ "Golden State Warriors",
+    Team == "Rockets" ~ "Houston Rockets",
+    Team == "Pacers" ~ "Indiana Pacers",
+    Team == "Clippers" ~ "Los Angeles Clippers",
+    Team == "Lakers" ~ "Los Angeles Lakers",
+    Team == "Grizzlies" ~ "Memphis Grizzlies",
+    Team == "Heat" ~ "Miami Heat",
+    Team == "Bucks" ~ "Milwaukee Bucks",
+    Team == "Timberwolves" ~ "Minnesota Timberwolves",
+    Team == "Pelicans" ~ "New Orleans Pelicans",
+    Team == "NY Knicks" ~ "New York Knicks",
+    Team == "Thunder" ~ "Oklahoma City Thunder",
+    Team == "Magic" ~ "Orlando Magic",
+    Team == "76ers" ~ "Philadelphia 76ers",
+    Team == "Suns" ~ "Phoenix Suns",
+    Team == "Trailblazers" ~ "Portland Trailblazers",
+    Team == "Kings" ~ "Sacramento Kings",
+    Team == "Spurs" ~ "San Antonio Spurs",
+    Team == "Raptors" ~ "Toronto Raptors",
+    Team == "Jazz" ~ "Utah Jazz",
+    Team == "Wizards" ~ "Washington Wizards",
+    TRUE ~ Team
+  ))
 ```
 
 ```{r}
-# Scrape the page for attendance data
-#url <- "http://www.espn.com/nba/attendance"
-#html_data <- read_html(url)
-#attendance_data <- html_data %>% 
-#  html_nodes(xpath='//*[@id="my-teams-table"]/div[2]/div/table') %>%
-# Filter data to only include attendance data since 2004 and exclude 2006 and 2020
-#attendance_total <- attendance_data %>% 
-#  filter(Year >= 2004, Year != 2006, Year != 2020)
-
-# Group data by team and year, and compute average attendance
-#average_attendance <- attendance_total %>% 
- # group_by(Team, Year) %>% 
-  #summarize(mean_attendance = mean(Attendance))
+attendance$home_latitude <- c(33.757253, 42.366079, 40.682693, 35.225142, 41.881280, 41.496209, 32.790189, 39.748577, 42.340972, 37.770358, 29.684815, 39.763899, 34.042849, 34.042849, 35.138022, 25.781392, 43.045119, 44.979153, 29.949325, 40.750915, 35.463085, 28.539155, 39.901070, 33.445261, 45.531834, 38.580434, 29.427512, 43.643709, 40.768386, 38.898197)
 ```
 
 ```{r}
-#attendance_list <- list()
-#for (year in 2004:2023) {
-  #url <- paste0("http://www.espn.com/nba/attendance/_/year", year)
-  #attendance_list[[year]] <- read_html(url) %>%
-    #html_table()[[1]]
-#}
-#attendance_df <- bind_rows(attendance_list)
-#attendance_df <- attendance_df %>% 
-  #rename('Team' = 'X2')
+attendance$home_longitude <- c(-84.396314, -71.061652, -73.975588, -80.839434, -87.674384, -81.688835, -96.810847, -105.006669, -83.056003, -122.386905, -95.411201, -86.155649, -118.266557, -118.266557, -90.050512, -80.187237, -87.916244, -93.275585, -90.082739, -73.992859, -97.515289, -81.383124, -75.171242, -112.071736, -122.667758, -121.498840, -98.438185, -79.378337, -111.900234, -77.020062)
 ```
 
 ```{r}
-data_winners <- filter(data, Winner == 'Home')
+attendance$away_latitude <- c(33.757253, 42.366079, 40.682693, 35.225142, 41.881280, 41.496209, 32.790189, 39.748577, 42.340972, 37.770358, 29.684815, 39.763899, 34.042849, 34.042849, 35.138022, 25.781392, 43.045119, 44.979153, 29.949325, 40.750915, 35.463085, 28.539155, 39.901070, 33.445261, 45.531834, 38.580434, 29.427512, 43.643709, 40.768386, 38.898197)
 ```
 
 ```{r}
-data_losers <- filter(data, Winner == 'Away')
+attendance$away_longitude <- c(-84.396314, -71.061652, -73.975588, -80.839434, -87.674384, -81.688835, -96.810847, -105.006669, -83.056003, -122.386905, -95.411201, -86.155649, -118.266557, -118.266557, -90.050512, -80.187237, -87.916244, -93.275585, -90.082739, -73.992859, -97.515289, -81.383124, -75.171242, -112.071736, -122.667758, -121.498840, -98.438185, -79.378337, -111.900234, -77.020062)
 ```
 
 ```{r}
-home_win <- data_winners %>% 
-  count(TEAM_ID_home, Winner) %>% 
-  rename(frequency = n)
+api_key <- "AIzaSyCP-VJr3Xd-hzCNqZsGm7NY6Eb_m_9F1-Q"
+
+coords <- data.frame(lon = c(-84.396314, -71.061652, -73.975588, -80.839434, -87.674384, -81.688835, -96.810847, -105.006669, -83.056003, -122.386905, -95.411201, -86.155649, -118.266557, -118.266557, -90.050512, -80.187237, -87.916244, -93.275585, -90.082739, -73.992859, -97.515289, -81.383124, -75.171242, -112.071736, -122.667758, -121.498840, -98.438185, -79.378337, -111.900234, -77.020062), lat = c(33.757253, 42.366079, 40.682693, 35.225142, 41.881280, 41.496209, 32.790189, 39.748577, 42.340972, 37.770358, 29.684815, 39.763899, 34.042849, 34.042849, 35.138022, 25.781392, 43.045119, 44.979153, 29.949325, 40.750915, 35.463085, 28.539155, 39.901070, 33.445261, 45.531834, 38.580434, 29.427512, 43.643709, 40.768386, 38.898197))
+
+coords$elevation <- google_elevation(coords, key = api_key)
+coords <- (coords[[3]][[1]])
 ```
 
 ```{r}
-home_loss <- data_losers %>% 
-  count(TEAM_ID_home, Winner) %>% 
-  rename(frequency = n)
+coords$Team <- c("Atlanta Hawks", "Boston Celtics", "Brooklyn Nets", "Charlotte Hornets", "Chicago Bulls", "Cleveland Cavaliers", "Dallas Mavericks", "Denver Nuggets", "Detroit Pistons", "Golden State Warriors", "Houston Rockets", "Indiana Pacers", "Los Angeles Clippers", "Los Angeles Lakers", "Memphis Grizzlies", "Miami Heat", "Milwaukee Bucks", "Minnesota Timberwolves", "New Orleans Pelicans", "New York Knicks", "Oklahoma City Thunder", "Orlando Magic", "Philadelphia 76ers", "Phoenix Suns", "Portland Trailblazers", "Sacramento Kings", "San Antonio Spurs", "Toronto Raptors", "Utah Jazz", "Washington Wizards")
+coords <- subset(coords, select = c(elevation, Team))
 ```
 
 ```{r}
-home_win_loss <- merge(home_win, home_loss, by = 'TEAM_ID_home')
+home <- subset(attendance, select = c(Team, home_longitude, home_latitude))
 ```
 
 ```{r}
-home_win_loss <- home_win_loss %>% 
-  rename(Win = frequency.x, Loss = frequency.y, Home = Winner.x, Away = Winner.y, Team = TEAM_ID_home)
-```
-
-```{r}
-home_win_loss <- home_win_loss %>%
-  group_by(Team) %>% 
-  mutate(Total = sum(Win, Loss))
-```
-
-```{r}
-home_win_loss <- home_win_loss %>%
-  group_by(Team) %>% 
-  mutate(Win_Percentage = Win / Total)
-```
-
-```{r}
-away_win <- data_losers %>% 
-  count(TEAM_ID_away, Winner) %>% 
-  rename(frequency = n)
-```
-
-```{r}
-away_loss <- data_winners %>% 
-  count(TEAM_ID_away, Winner) %>% 
-  rename(frequency = n)
-```
-
-```{r}
-away_win_loss <- merge(away_win, away_loss, by = 'TEAM_ID_away')
-```
-
-```{r}
-away_win_loss <- away_win_loss %>% 
-  rename(Win = frequency.x, Loss = frequency.y, Away = Winner.x, Home = Winner.y, Team = TEAM_ID_away)
-```
-
-```{r}
-away_win_loss <- away_win_loss %>%
-  group_by(Team) %>% 
-  mutate(Total = sum(Win, Loss))
-```
-
-```{r}
-away_win_loss <- away_win_loss %>%
-  group_by(Team) %>% 
-  mutate(Win_Percentage = Win / Total)
-```
-
-```{r}
-team_win_loss <- merge(home_win_loss, away_win_loss, by = 'Team')
-```
-
-```{r}
-team_win_loss <- team_win_loss %>% 
-  rename(Home_Win = Win.x, Home_Loss = Loss.x, Home_Total = Total.x, Home_Win_Percentage = Win_Percentage.x, Away_Win = Win.y, Away_Loss = Loss.y, Away_Total = Total.y, Away_Win_Percentage = Win_Percentage.y)
-```
-
-```{r}
-team_win_loss <- subset(team_win_loss, select = c(Team, Home_Win, Home_Loss, Home_Total, Home_Win_Percentage, Away_Win, Away_Loss, Away_Total, Away_Win_Percentage))
-```
-
-```{r}
-team_win_loss <- team_win_loss %>%
-  group_by(Team) %>% 
-  mutate(Win_Pct_Differential = Home_Win_Percentage - Away_Win_Percentage)
-```
-
-```{r}
-ggplot(team_win_loss, aes(x = Win_Pct_Differential, y = reorder(Team, Win_Pct_Differential), color = Team)) +
-  geom_point() +
-  geom_smooth(method=lm) +
-  theme(legend.position = 'none') +
-  labs(title = "Home Court Impact", x = "Win % Differential Home vs Away", y = "Teams")
-```
-
-```{r}
-ggplot(team_win_loss, aes(x=Win_Pct_Differential, y=reorder(Team, Win_Pct_Differential), fill=Team)) +
-  geom_bar(stat="identity") +
-  theme(legend.position = 'none') +
-  labs(title = "Home Court Impact", x = "Win % Differential Home vs Away", y = "Teams")
-```
-
-```{r}
-data <- data %>% 
-  group_by(TEAM_ID_home) %>% 
-  mutate(Pts_Scored_Home = mean(PTS_home, na.rm = TRUE))
-```
-
-```{r}
-data <- data %>% 
-  group_by(TEAM_ID_home) %>% 
-  mutate(Pts_Against_Home = mean(PTS_away, na.rm = TRUE))
-```
-
-```{r}
-data <- data %>% 
-  group_by(TEAM_ID_away) %>% 
-  mutate(Pts_Scored_Away = mean(PTS_away, na.rm = TRUE))
-```
-
-```{r}
-data <- data %>% 
-  group_by(TEAM_ID_away) %>% 
-  mutate(Pts_Against_Away = mean(PTS_home, na.rm = TRUE))
-```
-
-```{r}
-data <- data %>% 
-  group_by(TEAM_ID_home) %>% 
-  mutate(Pts_Home_Differential = Pts_Scored_Home - Pts_Against_Home)
-```
-
-```{r}
-data <- data %>% 
-  group_by(TEAM_ID_away) %>% 
-  mutate(Pts_Away_Differential = Pts_Scored_Away - Pts_Against_Away)
-```
-
-```{r}
-home_win_loss$home_latitude <- c(33.757253, 42.366079, 40.682693, 35.225142, 41.881280, 41.496209, 32.790189, 39.748577, 42.340972, 37.770358, 29.684815, 39.763899, 34.042849, 34.042849, 35.138022, 25.781392, 43.045119, 44.979153, 29.949325, 40.750915, 35.463085, 28.539155, 39.901070, 33.445261, 45.531834, 38.580434, 29.427512, 43.643709, 40.768386, 38.898197)
-```
-
-```{r}
-home_win_loss$home_longitude <- c(-84.396314, -71.061652, -73.975588, -80.839434, -87.674384, -81.688835, -96.810847, -105.006669, -83.056003, -122.386905, -95.411201, -86.155649, -118.266557, -118.266557, -90.050512, -80.187237, -87.916244, -93.275585, -90.082739, -73.992859, -97.515289, -81.383124, -75.171242, -112.071736, -122.667758, -121.498840, -98.438185, -79.378337, -111.900234, -77.020062)
-```
-
-```{r}
-away_win_loss$away_latitude <- c(33.757253, 42.366079, 40.682693, 35.225142, 41.881280, 41.496209, 32.790189, 39.748577, 42.340972, 37.770358, 29.684815, 39.763899, 34.042849, 34.042849, 35.138022, 25.781392, 43.045119, 44.979153, 29.949325, 40.750915, 35.463085, 28.539155, 39.901070, 33.445261, 45.531834, 38.580434, 29.427512, 43.643709, 40.768386, 38.898197)
-```
-
-```{r}
-away_win_loss$away_longitude <- c(-84.396314, -71.061652, -73.975588, -80.839434, -87.674384, -81.688835, -96.810847, -105.006669, -83.056003, -122.386905, -95.411201, -86.155649, -118.266557, -118.266557, -90.050512, -80.187237, -87.916244, -93.275585, -90.082739, -73.992859, -97.515289, -81.383124, -75.171242, -112.071736, -122.667758, -121.498840, -98.438185, -79.378337, -111.900234, -77.020062)
-```
-
-```{r}
-home <- subset(home_win_loss, select = c(Team, home_longitude, home_latitude))
-```
-
-```{r}
-away <- subset(away_win_loss, select = c(Team, away_longitude, away_latitude))
+away <- subset(attendance, select = c(Team, away_longitude, away_latitude))
 ```
 
 ```{r}
@@ -371,21 +255,263 @@ data <- data %>%
 ```
 
 ```{r}
-api_key <- "AIzaSyCP-VJr3Xd-hzCNqZsGm7NY6Eb_m_9F1-Q"
-
-coords <- data.frame(lon = c(-84.396314, -71.061652, -73.975588, -80.839434, -87.674384, -81.688835, -96.810847, -105.006669, -83.056003, -122.386905, -95.411201, -86.155649, -118.266557, -118.266557, -90.050512, -80.187237, -87.916244, -93.275585, -90.082739, -73.992859, -97.515289, -81.383124, -75.171242, -112.071736, -122.667758, -121.498840, -98.438185, -79.378337, -111.900234, -77.020062), lat = c(33.757253, 42.366079, 40.682693, 35.225142, 41.881280, 41.496209, 32.790189, 39.748577, 42.340972, 37.770358, 29.684815, 39.763899, 34.042849, 34.042849, 35.138022, 25.781392, 43.045119, 44.979153, 29.949325, 40.750915, 35.463085, 28.539155, 39.901070, 33.445261, 45.531834, 38.580434, 29.427512, 43.643709, 40.768386, 38.898197))
-
-coords$elevation <- google_elevation(coords, key = api_key)
-coords <- (coords[[3]][[1]])
+covid_data <- data %>%
+  mutate(GAME_DATE_EST = as.Date(GAME_DATE_EST)) %>%
+  filter(between(GAME_DATE_EST, as.Date("2020-03-12"), as.Date("2020-10-12")))
 ```
 
 ```{r}
-coords$Team <- c("Atlanta Hawks", "Boston Celtics", "Brooklyn Nets", "Charlotte Hornets", "Chicago Bulls", "Cleveland Cavaliers", "Dallas Mavericks", "Denver Nuggets", "Detroit Pistons", "Golden State Warriors", "Houston Rockets", "Indiana Pacers", "Los Angeles Clippers", "Los Angeles Lakers", "Memphis Grizzlies", "Miami Heat", "Milwaukee Bucks", "Minnesota Timberwolves", "New Orleans Pelicans", "New York Knicks", "Oklahoma City Thunder", "Orlando Magic", "Philadelphia 76ers", "Phoenix Suns", "Portland Trailblazers", "Sacramento Kings", "San Antonio Spurs", "Toronto Raptors", "Utah Jazz", "Washington Wizards")
-coords <- subset(coords, select = c(elevation, Team))
+data$GAME_DATE_EST <- as.Date(data$GAME_DATE_EST)
+data <- data %>% 
+  filter( !(between(GAME_DATE_EST, as.Date("2020-03-12"), as.Date("2020-10-12"))))
+```
+
+```{r}
+covid_data %>%
+  group_by(Winner) %>%
+  summarise(frequency = n()) %>%
+  mutate(relative_frequency = frequency / sum(frequency))
+```
+
+```{r}
+data %>%
+  group_by(Winner) %>%
+  summarise(frequency = n()) %>%
+  mutate(relative_frequency = frequency / sum(frequency)) 
+```
+
+
+
+
+
+
+```{r}
+data_winners <- filter(data, Winner == 'Home')
+covid_data_winners <- filter(covid_data, Winner == 'Home')
+```
+
+```{r}
+data_losers <- filter(data, Winner == 'Away')
+covid_data_losers <- filter(covid_data, Winner == 'Away')
+```
+
+```{r}
+home_win <- data_winners %>% 
+  count(TEAM_ID_home, Winner) %>% 
+  rename(frequency = n)
+covid_home_win <- covid_data_winners %>% 
+  count(TEAM_ID_home, Winner) %>% 
+  rename(frequency = n)
+```
+
+```{r}
+home_loss <- data_losers %>% 
+  count(TEAM_ID_home, Winner) %>% 
+  rename(frequency = n)
+covid_home_loss <- covid_data_losers %>% 
+  count(TEAM_ID_home, Winner) %>% 
+  rename(frequency = n)
+```
+
+```{r}
+home_win_loss <- merge(home_win, home_loss, by = 'TEAM_ID_home')
+covid_home_win_loss <- merge(covid_home_win, covid_home_loss, by = 'TEAM_ID_home')
+```
+
+```{r}
+home_win_loss <- home_win_loss %>% 
+  rename(Win = frequency.x, Loss = frequency.y, Home = Winner.x, Away = Winner.y, Team = TEAM_ID_home)
+covid_home_win_loss <- covid_home_win_loss %>% 
+  rename(Win = frequency.x, Loss = frequency.y, Home = Winner.x, Away = Winner.y, Team = TEAM_ID_home)
+```
+
+```{r}
+home_win_loss <- home_win_loss %>%
+  group_by(Team) %>% 
+  mutate(Total = sum(Win, Loss))
+covid_home_win_loss <- covid_home_win_loss %>%
+  group_by(Team) %>% 
+  mutate(Total = sum(Win, Loss))
+```
+
+```{r}
+home_win_loss <- home_win_loss %>%
+  group_by(Team) %>% 
+  mutate(Win_Percentage = Win / Total)
+covid_home_win_loss <- covid_home_win_loss %>%
+  group_by(Team) %>% 
+  mutate(Win_Percentage = Win / Total)
+```
+
+```{r}
+away_win <- data_losers %>%
+  group_by(TEAM_ID_away) %>% 
+  count(Winner) %>% 
+  rename(frequency = n)
+covid_away_win <- covid_data_losers %>% 
+  group_by(TEAM_ID_away) %>%
+  count(Winner) %>% 
+  rename(frequency = n)
+```
+
+```{r}
+away_loss <- data_winners %>% 
+  group_by(TEAM_ID_away) %>% 
+  count(Winner) %>% 
+  rename(frequency = n)
+covid_away_loss <- covid_data_winners %>%
+  group_by(TEAM_ID_away) %>% 
+  count(Winner) %>% 
+  rename(frequency = n)
+```
+
+```{r}
+away_win_loss <- merge(away_win, away_loss, by = 'TEAM_ID_away')
+covid_away_win_loss <- merge(covid_away_win, covid_away_loss, by = 'TEAM_ID_away')
+```
+
+```{r}
+away_win_loss <- away_win_loss %>% 
+  rename(Win = frequency.x, Loss = frequency.y, Away = Winner.x, Home = Winner.y, Team = TEAM_ID_away)
+covid_away_win_loss <- covid_away_win_loss %>% 
+  rename(Win = frequency.x, Loss = frequency.y, Away = Winner.x, Home = Winner.y, Team = TEAM_ID_away)
+```
+
+```{r}
+away_win_loss <- away_win_loss %>%
+  group_by(Team) %>% 
+  mutate(Total = sum(Win, Loss))
+covid_away_win_loss <- covid_away_win_loss %>%
+  group_by(Team) %>% 
+  mutate(Total = sum(Win, Loss))
+```
+
+```{r}
+away_win_loss <- away_win_loss %>%
+  group_by(Team) %>% 
+  mutate(Win_Percentage = Win / Total)
+covid_away_win_loss <- covid_away_win_loss %>%
+  group_by(Team) %>% 
+  mutate(Win_Percentage = Win / Total)
+```
+
+```{r}
+team_win_loss <- merge(home_win_loss, away_win_loss, by = 'Team')
+covid_team_win_loss <- merge(covid_home_win_loss, covid_away_win_loss, by = 'Team')
+```
+
+```{r}
+team_win_loss <- team_win_loss %>% 
+  rename(Home_Win = Win.x, Home_Loss = Loss.x, Home_Total = Total.x, Home_Win_Percentage = Win_Percentage.x, Away_Win = Win.y, Away_Loss = Loss.y, Away_Total = Total.y, Away_Win_Percentage = Win_Percentage.y)
+covid_team_win_loss <- covid_team_win_loss %>% 
+  rename(Home_Win = Win.x, Home_Loss = Loss.x, Home_Total = Total.x, Home_Win_Percentage = Win_Percentage.x, Away_Win = Win.y, Away_Loss = Loss.y, Away_Total = Total.y, Away_Win_Percentage = Win_Percentage.y)
+```
+
+```{r}
+team_win_loss <- subset(team_win_loss, select = c(Team, Home_Win, Home_Loss, Home_Total, Home_Win_Percentage, Away_Win, Away_Loss, Away_Total, Away_Win_Percentage))
+covid_team_win_loss <- subset(covid_team_win_loss, select = c(Team, Home_Win, Home_Loss, Home_Total, Home_Win_Percentage, Away_Win, Away_Loss, Away_Total, Away_Win_Percentage))
+```
+
+```{r}
+team_win_loss <- team_win_loss %>%
+  group_by(Team) %>% 
+  mutate(Win_Pct_Differential = Home_Win_Percentage - Away_Win_Percentage)
+covid_team_win_loss <- covid_team_win_loss %>%
+  group_by(Team) %>% 
+  mutate(Win_Pct_Differential = Home_Win_Percentage - Away_Win_Percentage)
+```
+
+```{r}
+ggplot(team_win_loss, aes(x = Win_Pct_Differential, y = reorder(Team, Win_Pct_Differential), color = Team)) +
+  geom_point() +
+  geom_smooth(method='lm') +
+  scale_fill_manual(values = league_pal("nba")) +
+  theme(legend.position = 'none') +
+  labs(title = "Home Court Impact", x = "Win % Differential Home vs Away", y = "Teams")
+```
+
+```{r}
+ggplot(covid_team_win_loss, aes(x = Win_Pct_Differential, y = reorder(Team, Win_Pct_Differential), color = Team)) +
+  geom_point() +
+  geom_smooth(method='lm') +
+  scale_fill_manual(values = league_pal("nba")) +
+  theme(legend.position = 'none') +
+  labs(title = "Covid Home Court Impact", x = "Win % Differential Home vs Away", y = "Teams")
+```
+
+```{r}
+ggplot(team_win_loss, aes(x=Win_Pct_Differential, y=reorder(Team, Win_Pct_Differential), fill=Team)) +
+  geom_bar(stat="identity") +
+  scale_fill_manual(values = league_pal("nba")) +
+  theme(legend.position = 'none') +
+  labs(title = "Home Court Impact", x = "Win % Differential Home vs Away", y = "Teams")
+```
+
+```{r}
+ggplot(covid_team_win_loss, aes(x=Win_Pct_Differential, y=reorder(Team, Win_Pct_Differential), fill=Team)) +
+  geom_bar(stat="identity") +
+  scale_fill_manual(values = league_pal("nba")) +
+  theme(legend.position = 'none') +
+  labs(title = "Home Court Impact", x = "Win % Differential Home vs Away", y = "Teams")
+```
+
+```{r}
+data <- data %>% 
+  group_by(TEAM_ID_home) %>% 
+  mutate(Pts_Scored_Home = mean(PTS_home, na.rm = TRUE))
+covid_data <- covid_data %>% 
+  group_by(TEAM_ID_home) %>% 
+  mutate(Pts_Scored_Home = mean(PTS_home, na.rm = TRUE))
+```
+
+```{r}
+data <- data %>% 
+  group_by(TEAM_ID_home) %>% 
+  mutate(Pts_Against_Home = mean(PTS_away, na.rm = TRUE))
+covid_data <- covid_data %>% 
+  group_by(TEAM_ID_home) %>% 
+  mutate(Pts_Against_Home = mean(PTS_away, na.rm = TRUE))
+```
+
+```{r}
+data <- data %>% 
+  group_by(TEAM_ID_away) %>% 
+  mutate(Pts_Scored_Away = mean(PTS_away, na.rm = TRUE))
+covid_data <- covid_data %>% 
+  group_by(TEAM_ID_away) %>% 
+  mutate(Pts_Scored_Away = mean(PTS_away, na.rm = TRUE))
+```
+
+```{r}
+data <- data %>% 
+  group_by(TEAM_ID_away) %>% 
+  mutate(Pts_Against_Away = mean(PTS_home, na.rm = TRUE))
+covid_data <- covid_data %>% 
+  group_by(TEAM_ID_away) %>% 
+  mutate(Pts_Against_Away = mean(PTS_home, na.rm = TRUE))
+```
+
+```{r}
+data <- data %>% 
+  group_by(TEAM_ID_home) %>% 
+  mutate(Pts_Home_Differential = Pts_Scored_Home - Pts_Against_Home)
+covid_data <- covid_data %>% 
+  group_by(TEAM_ID_home) %>% 
+  mutate(Pts_Home_Differential = Pts_Scored_Home - Pts_Against_Home)
+```
+
+```{r}
+data <- data %>% 
+  group_by(TEAM_ID_away) %>% 
+  mutate(Pts_Away_Differential = Pts_Scored_Away - Pts_Against_Away)
+covid_data <- covid_data %>% 
+  group_by(TEAM_ID_away) %>% 
+  mutate(Pts_Away_Differential = Pts_Scored_Away - Pts_Against_Away)
 ```
 
 ```{r}
 final_data <- merge(team_win_loss, coords, by = 'Team')
+covid_final_data <- merge(covid_team_win_loss, coords, by = 'Team')
 ```
 
 ```{r}
@@ -393,51 +519,196 @@ final_data <- final_data %>%
   group_by(Team) %>% 
   mutate(Elevation = elevation * 3.28084)
 final_data <- subset(final_data, select = -elevation)
+covid_final_data <- covid_final_data %>% 
+  group_by(Team) %>% 
+  mutate(Elevation = elevation * 3.28084)
+covid_final_data <- subset(covid_final_data, select = -elevation)
 ```
+
+
 
 ```{r}
 mean(data$FG_PCT_home, na.rm = TRUE)
 mean(data$FG_PCT_away, na.rm = TRUE)
 ```
+```{r}
+mean(covid_data$FG_PCT_home, na.rm = TRUE)
+mean(covid_data$FG_PCT_away, na.rm = TRUE)
+```
+
+
 
 ```{r}
 mean(data$FG3_PCT_home, na.rm = TRUE)
 mean(data$FG3_PCT_away, na.rm = TRUE)
 ```
+```{r}
+mean(covid_data$FG3_PCT_home, na.rm = TRUE)
+mean(covid_data$FG3_PCT_away, na.rm = TRUE)
+```
+
+
 
 ```{r}
 mean(data$FT_PCT_home, na.rm = TRUE)
 mean(data$FT_PCT_away, na.rm = TRUE)
 ```
+```{r}
+mean(covid_data$FT_PCT_home, na.rm = TRUE)
+mean(covid_data$FT_PCT_away, na.rm = TRUE)
+```
+
+
 
 ```{r}
 mean(data$AST_home, na.rm = TRUE)
 mean(data$AST_away, na.rm = TRUE)
 ```
+```{r}
+mean(covid_data$AST_home, na.rm = TRUE)
+mean(covid_data$AST_away, na.rm = TRUE)
+```
+
+
 
 ```{r}
 mean(data$REB_home, na.rm = TRUE)
 mean(data$REB_away, na.rm = TRUE)
 ```
-
 ```{r}
-#final_data <- subset(coords, select = c(1:3))
-#data.frame(coords$elevation, coords$location$lat, coords$location$lng)
+mean(covid_data$REB_home, na.rm = TRUE)
+mean(covid_data$REB_away, na.rm = TRUE)
 ```
 
 
 ```{r}
-#Teams$Average_Distance_Traveled
+data_home_grouped <- data %>%
+  group_by(Team) %>%
+  summarise(Pts_Scored_Home = mean(Pts_Scored_Home),
+            Pts_Against_Home = mean(Pts_Against_Home),
+            Home_Pts_Differential = mean(Pts_Home_Differential),
+            Avg_Distance_Traveled_Against = mean(Avg_Distance_Traveled_Against)
+           )
+data_away_grouped <- data %>%
+  group_by(TEAM_ID_away) %>%
+  summarise(Pts_Scored_Away = mean(Pts_Scored_Away),
+            Pts_Against_Away = mean(Pts_Against_Away),
+            Away_Pts_Differential = mean(Pts_Away_Differential)
+           )
+data_away_grouped <- data_away_grouped %>%
+  rename('Team' = 'TEAM_ID_away')
+
+final_data <- merge(final_data, data_home_grouped, by = 'Team')
+final_data <- merge(final_data, data_away_grouped, by = 'Team')
+```
+
+```{r}
+covid_data_home_grouped <- covid_data %>%
+  group_by(Team) %>%
+  summarise(Pts_Scored_Home = mean(Pts_Scored_Home),
+            Pts_Against_Home = mean(Pts_Against_Home),
+            Home_Pts_Differential = mean(Pts_Home_Differential),
+            Avg_Distance_Traveled_Against = mean(Avg_Distance_Traveled_Against)
+           )
+covid_data_away_grouped <- covid_data %>%
+  group_by(TEAM_ID_away) %>%
+  summarise(Pts_Scored_Away = mean(Pts_Scored_Away),
+            Pts_Against_Away = mean(Pts_Against_Away),
+            Away_Pts_Differential = mean(Pts_Away_Differential)
+           )
+covid_data_away_grouped <- covid_data_away_grouped %>%
+  rename('Team' = 'TEAM_ID_away')
+
+covid_final_data <- merge(covid_final_data, covid_data_home_grouped, by = 'Team')
+covid_final_data <- merge(covid_final_data, covid_data_away_grouped, by = 'Team')
+```
+
+```{r}
+final_data <- final_data %>% 
+  mutate(Home_Vs_Away_Point_Differential = Home_Pts_Differential - Away_Pts_Differential,
+         Home_Vs_Away_Point_Differential_pos_neg = ifelse(Home_Vs_Away_Point_Differential > 0, "positive", "negative")
+        )
+final_data <- final_data %>%
+  select(-Home_Vs_Away_Point_Differential_pos_neg)
+```
+
+```{r}
+covid_final_data <- covid_final_data %>% 
+  mutate(Home_Vs_Away_Point_Differential = Home_Pts_Differential - Away_Pts_Differential,
+         Home_Vs_Away_Point_Differential_pos_neg = ifelse(Home_Vs_Away_Point_Differential > 0, "positive", "negative")
+        )
+covid_final_data <- covid_final_data %>%
+  select(-Home_Vs_Away_Point_Differential_pos_neg)
+```
+
+```{r}
+ggplot(final_data, aes(x = Win_Pct_Differential, y = Elevation)) + 
+  geom_point(aes(color = Team)) + 
+  geom_smooth(method='lm') + 
+  scale_fill_manual(values = league_pal("nba")) +
+  ggtitle("Win % Differential vs Elevation") +
+  xlab("Win % Differential") + ylab("Elevation") +
+  theme(legend.position = "none")
+```
+
+```{r}
+ggplot(covid_final_data, aes(x = Win_Pct_Differential, y = Elevation)) + 
+  geom_point(aes(color = Team)) + 
+  geom_smooth(method='lm') + 
+  scale_fill_manual(values = league_pal("nba")) +
+  ggtitle("Win % Differential vs Elevation") +
+  xlab("Win % Differential") + ylab("Elevation") +
+  theme(legend.position = "none")
 ```
 
 
 ```{r}
-# <- left_join(Teams, data, by = 'TEAM_ID_away')
+ggplot(final_data, aes(x =Win_Pct_Differential, y = Avg_Distance_Traveled_Against)) + 
+  geom_point(aes(color = Team)) + 
+  geom_smooth(method='lm') + 
+  scale_fill_manual(values = league_pal("nba")) +
+  ggtitle("Win % Differential vs Opponent's Average Distance Traveled") +
+  xlab("Win % Differential") + ylab("Opponent's Average Distance Traveled") +
+  theme(legend.position = "none")
 ```
 
 ```{r}
-#simple_regression_model <- lm(amount ~ square_footage + age + relevel(group, ref = 'outside') + year_of_sale + tpost + tract, data = data)
-#summary(simple_regression_model)
+ggplot(covid_final_data, aes(x =Win_Pct_Differential, y = Avg_Distance_Traveled_Against)) + 
+  geom_point(aes(color = Team)) + 
+  geom_smooth(method='lm') + 
+  scale_fill_manual(values = league_pal("nba")) +
+  ggtitle("Win % Differential vs Opponent's Average Distance Traveled") +
+  xlab("Win % Differential") + ylab("Opponent's Average Distance Traveled") +
+  theme(legend.position = "none")
+```
+
+```{r}
+ggplot(final_data, aes(x = Home_Vs_Away_Point_Differential, y = Win_Pct_Differential)) + 
+  geom_point(aes(color = Team)) +
+  geom_smooth(method='lm') + 
+  scale_fill_manual(values = league_pal("nba")) +
+  ggtitle("Win % Differential vs Home/Away Point Differential") +
+  xlab("Home/Away Point Differential") + ylab("Win % Differential") +
+  theme(legend.position = "none")
+```
+
+```{r}
+ggplot(covid_final_data, aes(x = Home_Vs_Away_Point_Differential, y = Win_Pct_Differential)) + 
+  geom_point(aes(color = Team)) +
+  geom_smooth(method='lm') + 
+  scale_fill_manual(values = league_pal("nba")) +
+  ggtitle("Win % Differential vs Home/Away Point Differential") +
+  xlab("Home/Away Point Differential") + ylab("Win % Differential") +
+  theme(legend.position = "none")
 ```
 
 
+```{r}
+linear_regression_model <- lm(Win_Pct_Differential ~ Home_Vs_Away_Point_Differential + Elevation + Avg_Distance_Traveled_Against, data = final_data)
+summary(linear_regression_model)
+```
+
+```{r}
+linear_regression_model <- lm(Win_Pct_Differential ~ Home_Vs_Away_Point_Differential + Elevation + Avg_Distance_Traveled_Against, data = covid_final_data)
+summary(linear_regression_model)
+```
