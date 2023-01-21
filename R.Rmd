@@ -280,10 +280,10 @@ data %>%
   mutate(relative_frequency = frequency / sum(frequency)) 
 ```
 
-
-
-
-
+```{r}
+mean(data$PTS_home, na.rm = TRUE)
+mean(data$PTS_away, na.rm = TRUE)
+```
 
 ```{r}
 data_winners <- filter(data, Winner == 'Home')
@@ -382,7 +382,7 @@ team_win_loss <- team_win_loss %>%
 
 ```{r}
 ggplot(team_win_loss, aes(x = Win_Pct_Differential, y = reorder(Team, Win_Pct_Differential), color = Team)) +
-  geom_point() +
+  geom_point(aes(color = Team)) +
   geom_smooth(method='lm') +
   scale_fill_manual(values = league_pal("nba")) +
   theme(legend.position = 'none') +
@@ -390,7 +390,7 @@ ggplot(team_win_loss, aes(x = Win_Pct_Differential, y = reorder(Team, Win_Pct_Di
 ```
 
 ```{r}
-ggplot(team_win_loss, aes(x=Win_Pct_Differential, y=reorder(Team, Win_Pct_Differential), fill=Team)) +
+ggplot(team_win_loss, aes(x=Win_Pct_Differential, y=reorder(Team, Win_Pct_Differential), fill = Team)) +
   geom_bar(stat="identity") +
   scale_fill_manual(values = league_pal("nba")) +
   theme(legend.position = 'none') +
@@ -548,6 +548,16 @@ ggplot(final_data, aes(x =Win_Pct_Differential, y = Avg_Distance_Traveled_Agains
 
 ```{r}
 ggplot(final_data, aes(x = Home_Vs_Away_Point_Differential, y = Win_Pct_Differential)) + 
+  geom_point(aes(color = Team)) +
+  geom_smooth(method='lm') + 
+  scale_fill_manual(values = league_pal("nba")) +
+  ggtitle("Win % Differential vs Home/Away Point Differential") +
+  xlab("Home/Away Point Differential") + ylab("Win % Differential") +
+  theme(legend.position = "none")
+```
+
+```{r}
+ggplot(final_data, aes(x = Home_Vs_Away_Point_Differential, y = Home_Win_Percentage)) + 
   geom_point(aes(color = Team)) +
   geom_smooth(method='lm') + 
   scale_fill_manual(values = league_pal("nba")) +

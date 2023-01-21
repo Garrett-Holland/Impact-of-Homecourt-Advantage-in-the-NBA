@@ -13,17 +13,19 @@ ui <- fluidPage(
     tabPanel("Homecourt Advantage by Team", plotOutput("ggplot")), 
     tabPanel("Factors that Influence Homecourt Advantage",
              selectInput("factors", 'select a factor', c(
-               'Home/Away Point Differential' = 'Home_Vs_Away_Point_Differential',
+               'Point Differential Home vs Away' = 'Home_Vs_Away_Point_Differential',
                'Elevation' = 'Elevation',
                "Opponent's Avg Distance Traveled" = "Avg_Distance_Traveled_Against",
-               'Attendance %' = 'Attendance_Pct')),
+               'Attendance %' = 'Attendance_Pct',
+               "Points Scored Home vs Away" = "Pts_Scored_Differential")),
              plotlyOutput("lineplot1")),
     tabPanel("Variables that Home Win % Impact",
              selectInput("variables", "select a factor", c(
                "Attendance %" = "Attendance_Pct",
                "Field Goal %" = "FG_Pct_Differential",
                "3 Point %" = "FG3_Pct_Differential",
-               "Points Scored Home vs Away" = "Pts_Scored_Differential")),
+               "Points Scored Home vs Away" = "Pts_Scored_Differential",
+               "Point Differential Home vs Away" = "Home_Vs_Away_Point_Differential")),
              plotlyOutput("lineplot2"))),
   )
 
@@ -41,7 +43,7 @@ server <- function(input, output) {
       geom_point(aes(color = Team)) +
       geom_smooth(method='lm') + 
       scale_fill_manual(values = league_pal("nba")) +
-      ggtitle("Win % Differential vs Home/Away Point Differential") +
+      ggtitle("Factors that Influence Homecourt Advantage vs Win % Differential") +
       xlab(labels[input$factors]) + ylab("Win % Differential") +
       theme(legend.position = "none")
     p = ggplotly(p)
@@ -52,7 +54,7 @@ server <- function(input, output) {
       geom_point(aes(color = Team)) +
       geom_smooth(method='lm') + 
       scale_fill_manual(values = league_pal("nba")) +
-      ggtitle("Home Win % and the Impact of Homecourt") +
+      ggtitle("Variables that Home Win % Impact") +
       xlab(labels[input$variables]) + ylab("Home Win %") +
       theme(legend.position = "none")
     p = ggplotly(p)
